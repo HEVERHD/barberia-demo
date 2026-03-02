@@ -213,6 +213,24 @@ export async function POST(req: NextRequest) {
     include: { service: true, user: true, barber: { select: { id: true, name: true, phone: true } } },
   })
 
+  // Auto-mark waitlist entry as BOOKED if client was on the waitlist for this date
+  if (user.phone) {
+    const waitlistEntry = await prisma.waitlistEntry.findFirst({
+      where: {
+        phone: user.phone,
+        date: colombiaDateStr,
+        status: { in: ["WAITING", "NOTIFIED"] },
+      },
+    })
+    if (waitlistEntry) {
+      await prisma.waitlistEntry.update({
+        where: { id: waitlistEntry.id },
+        data: { status: "BOOKED", notified: true },
+      })
+      console.log(`[Waitlist] Auto-marked entry ${waitlistEntry.id} as BOOKED — client booked from /booking`)
+    }
+  }
+
   // Build appointment link for client
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "http://localhost:3000"
   const appointmentLink = `${baseUrl}/cita/${appointment.token}`
