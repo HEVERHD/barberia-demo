@@ -14,10 +14,17 @@ type BlockedSlot = {
   createdAt: string
 }
 
+const PRESETS = [
+  { label: "Almuerzo", emoji: "🍽", startTime: "11:58", endTime: "13:00", reason: "Almuerzo" },
+  { label: "Día libre", emoji: "🏖", startTime: "00:00", endTime: "23:59", reason: "Día libre", allDay: true },
+]
+
 export default function BlockedSlotsPage() {
   const [blockedSlots, setBlockedSlots] = useState<BlockedSlot[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
+  const [quickDate, setQuickDate] = useState(new Date().toISOString().split("T")[0])
+  const [quickLoading, setQuickLoading] = useState<string | null>(null)
   const [form, setForm] = useState({
     date: new Date().toISOString().split("T")[0],
     startTime: "09:00",
@@ -68,6 +75,24 @@ export default function BlockedSlotsPage() {
     fetchBlocked()
   }
 
+  const quickBlock = async (preset: typeof PRESETS[number]) => {
+    if (!quickDate) return
+    setQuickLoading(preset.label)
+    await fetch("/api/blocked-slots", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        date: quickDate,
+        startTime: preset.startTime,
+        endTime: preset.endTime,
+        reason: preset.reason,
+        allDay: preset.allDay ?? false,
+      }),
+    })
+    setQuickLoading(null)
+    fetchBlocked()
+  }
+
   const formatDate = (dateStr: string) => {
     const [y, m, d] = dateStr.split("-").map(Number)
     const date = new Date(y, m - 1, d)
@@ -94,6 +119,38 @@ export default function BlockedSlotsPage() {
         >
           + Nuevo Bloqueo
         </button>
+      </div>
+
+      {/* Quick presets */}
+      <div className="bg-[#2d1515] rounded-xl p-5 border border-[#3d2020] mb-6">
+        <p className="text-xs font-bold text-white/30 uppercase tracking-widest mb-4">Acceso rápido</p>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="flex-1 w-full sm:w-auto">
+            <label className="text-xs text-white/50 mb-1 block">Fecha</label>
+            <input
+              type="date"
+              value={quickDate}
+              onChange={(e) => setQuickDate(e.target.value)}
+              className="w-full p-3 border border-[#3d2020] rounded-xl focus:border-[#e84118] focus:outline-none bg-[#1a0a0a] text-white [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-60"
+            />
+          </div>
+          <div className="flex flex-wrap gap-3 pt-5">
+            {PRESETS.map((preset) => (
+              <button
+                key={preset.label}
+                onClick={() => quickBlock(preset)}
+                disabled={quickLoading === preset.label}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1a0a0a] border border-[#3d2020] hover:border-[#e84118]/60 hover:bg-[#e84118]/10 transition text-sm text-white/70 hover:text-white disabled:opacity-50"
+              >
+                <span>{preset.emoji}</span>
+                <span>{quickLoading === preset.label ? "Bloqueando..." : preset.label}</span>
+                {!preset.allDay && (
+                  <span className="text-xs text-white/30">{preset.startTime} – {preset.endTime}</span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Form */}

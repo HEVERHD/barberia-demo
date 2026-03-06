@@ -483,57 +483,73 @@ export default async function Home() {
       )}
 
       {/* ── Footer ── */}
-      <footer className="border-t border-white/5 py-10 bg-[#0a0a0a]">
+      <footer className="border-t border-white/10 pt-14 pb-8 bg-[#080808]">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center gap-3">
-              <Image src="/logo2.png" alt="Frailin Studio" width={28} height={28} className="opacity-70" />
-              <span className="font-bold text-white/70">
-                <span className="text-[#e84118]">Frailin</span> Studio
-              </span>
-            </div>
-            <div className="flex gap-8">
-              <Link href="/booking" className="text-sm text-white/30 hover:text-white transition font-medium">
-                Agendar
-              </Link>
-              <a href="#servicios" className="text-sm text-white/30 hover:text-white transition font-medium">
-                Servicios
-              </a>
-              {settings?.address && (
-                <a href="#ubicacion" className="text-sm text-white/30 hover:text-white transition font-medium">
-                  Ubicacion
-                </a>
-              )}
-            </div>
-            <div className="flex items-center gap-4">
-              <a
-                href="https://www.instagram.com/frailinherrera"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white/20 hover:text-[#e84118] transition"
-                aria-label="Instagram"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                  <circle cx="12" cy="12" r="4"/>
-                  <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/>
-                </svg>
-              </a>
-              <a
-                href="https://www.facebook.com/frailin.herreragirado"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white/20 hover:text-[#e84118] transition"
-                aria-label="Facebook"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-                </svg>
-              </a>
-              <p className="text-xs text-white/15">
-                &copy; {new Date().getFullYear()} Frailin Studio. Cartagena, Colombia.
+          {/* Top row */}
+          <div className="flex flex-col md:flex-row justify-between items-start gap-10 mb-10">
+            {/* Brand */}
+            <div>
+              <div className="flex items-center gap-3 mb-3">
+                <Image src="/logo2.png" alt="Frailin Studio" width={34} height={34} />
+                <span className="font-black text-lg text-white">
+                  <span className="text-[#e84118]">Frailin</span> Studio
+                </span>
+              </div>
+              <p className="text-sm text-white/40 max-w-[220px] leading-relaxed">
+                Barbería en Vista Hermosa, Cartagena. Tu look habla antes que tú.
               </p>
             </div>
+
+            {/* Links */}
+            <div className="flex gap-10">
+              <div>
+                <p className="text-[10px] font-bold text-white/25 uppercase tracking-widest mb-3">Barbería</p>
+                <div className="flex flex-col gap-2.5">
+                  <Link href="/booking" className="text-sm text-white/55 hover:text-white transition">Agendar cita</Link>
+                  <a href="#servicios" className="text-sm text-white/55 hover:text-white transition">Servicios</a>
+                  {settings?.address && (
+                    <a href="#ubicacion" className="text-sm text-white/55 hover:text-white transition">Ubicación</a>
+                  )}
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-white/25 uppercase tracking-widest mb-3">Redes</p>
+                <div className="flex flex-col gap-2.5">
+                  <a
+                    href="https://www.instagram.com/frailinherrera"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-sm text-white/55 hover:text-[#e84118] transition"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                      <circle cx="12" cy="12" r="4"/>
+                      <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/>
+                    </svg>
+                    Instagram
+                  </a>
+                  <a
+                    href="https://www.facebook.com/frailin.herreragirado"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-sm text-white/55 hover:text-[#e84118] transition"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+                    </svg>
+                    Facebook
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom divider + copyright */}
+          <div className="border-t border-white/8 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <p className="text-xs text-white/30">
+              &copy; {new Date().getFullYear()} Frailin Studio. Cartagena, Colombia.
+            </p>
+            <p className="text-xs text-white/20">Vista Hermosa — Del barrio, bien puesto.</p>
           </div>
         </div>
       </footer>
