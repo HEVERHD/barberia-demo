@@ -55,6 +55,7 @@ model User {
   barberAppointments  Appointment[]      @relation("BarberAppointments")
   barberSettings      BarberSettings?
   blockedSlots        BlockedSlot[]
+  recurringBlocks     RecurringBlock[]
   pushSubscriptions   PushSubscription[]
   accounts            Account[]
   sessions            Session[]
@@ -153,6 +154,19 @@ model BlockedSlot {
   createdAt DateTime @default(now())
 
   @@index([date])
+  @@index([barberId])
+}
+
+model RecurringBlock {
+  id        String   @id @default(cuid())
+  startTime String               // HH:mm — applies every day
+  endTime   String               // HH:mm
+  reason    String?
+  allDay    Boolean  @default(false)
+  barberId  String
+  barber    User     @relation(fields: [barberId], references: [id])
+  createdAt DateTime @default(now())
+
   @@index([barberId])
 }
 

@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
   const dayStart = parseColombia(dateStr + "T00:00:00")
   const dayEnd = parseColombia(dateStr + "T23:59:59")
 
-  const [settings, service, appointments, blockedSlots] = await Promise.all([
+  const [settings, service, appointments, blockedSlots, recurringBlocks] = await Promise.all([
     prisma.barberSettings.findUnique({ where: { userId: barberId } }),
     prisma.service.findUnique({ where: { id: serviceId } }),
     prisma.appointment.findMany({
@@ -30,6 +30,9 @@ export async function GET(req: NextRequest) {
     }),
     prisma.blockedSlot.findMany({
       where: { date: dateStr, barberId },
+    }),
+    prisma.recurringBlock.findMany({
+      where: { barberId },
     }),
   ])
 
@@ -97,11 +100,16 @@ export async function GET(req: NextRequest) {
       return slotStart < aptEnd && slotEnd > aptStart
     })
 
-    // Check if slot is blocked
-    const isBlocked = blockedSlots.some((blocked) => {
-      if (blocked.allDay) return true
-      return timeStr >= blocked.startTime && timeStr < blocked.endTime
-    })
+    // Check if slot is blocked (one-time or recurring)
+    const isBlocked =
+      blockedSlots.some((blocked) => {
+        if (blocked.allDay) return true
+        return timeStr >= blocked.startTime && timeStr < blocked.endTime
+      }) ||
+      recurringBlocks.some((r) => {
+        if (r.allDay) return true
+        return timeStr >= r.startTime && timeStr < r.endTime
+      })
 
     // Mark past slots as unavailable when viewing today
     const isPast = isToday && slotStart < currentMinutes

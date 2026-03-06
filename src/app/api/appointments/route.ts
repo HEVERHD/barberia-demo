@@ -181,17 +181,23 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  // Check for blocked slots for THIS barber only
+  // Check for blocked slots for THIS barber only (one-time + recurring)
   const colTime = getColombiaTime(appointmentDate)
   const timeStr = `${colTime.hours.toString().padStart(2, "0")}:${colTime.minutes.toString().padStart(2, "0")}`
-  const blockedSlots = await prisma.blockedSlot.findMany({
-    where: { date: colombiaDateStr, barberId: body.barberId },
-  })
+  const [blockedSlots, recurringBlocks] = await Promise.all([
+    prisma.blockedSlot.findMany({ where: { date: colombiaDateStr, barberId: body.barberId } }),
+    prisma.recurringBlock.findMany({ where: { barberId: body.barberId } }),
+  ])
 
-  const isBlocked = blockedSlots.some((blocked) => {
-    if (blocked.allDay) return true
-    return timeStr >= blocked.startTime && timeStr < blocked.endTime
-  })
+  const isBlocked =
+    blockedSlots.some((blocked) => {
+      if (blocked.allDay) return true
+      return timeStr >= blocked.startTime && timeStr < blocked.endTime
+    }) ||
+    recurringBlocks.some((r) => {
+      if (r.allDay) return true
+      return timeStr >= r.startTime && timeStr < r.endTime
+    })
 
   if (isBlocked) {
     return NextResponse.json(
