@@ -198,7 +198,8 @@ export default function HeroSection({ galleryImages = [] }: HeroSectionProps) {
       <section className="relative pt-16 min-h-screen flex items-center overflow-hidden">
 
         {/* ── Background ── */}
-        <div className="absolute inset-0 bg-[#0a0a0a]" />
+        {/* Gradient vignette so hero text stays readable over parallax bg */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/20 to-black/55 pointer-events-none" />
         <div className="absolute inset-0 fs-dot-grid pointer-events-none" />
         <div className="fs-orb-1 absolute -top-[15%] -left-[5%]  w-[700px] h-[700px] rounded-full bg-[#e84118]/6 blur-[140px] pointer-events-none" />
         <div className="fs-orb-2 absolute  top-[5%]  right-[-10%] w-[550px] h-[550px] rounded-full bg-[#e84118]/4 blur-[110px] pointer-events-none" />

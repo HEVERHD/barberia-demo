@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
+import Link from "next/link"
+import { ArrowLeft, Clock, Scissors, ChevronLeft, ChevronRight } from "lucide-react"
 
 type Barber = {
   id: string
@@ -27,7 +29,7 @@ function getWeekStart(date: Date): Date {
   const d = new Date(date)
   d.setHours(0, 0, 0, 0)
   const day = d.getDay()
-  const diff = day === 0 ? -6 : 1 - day   // Monday = start
+  const diff = day === 0 ? -6 : 1 - day
   d.setDate(d.getDate() + diff)
   return d
 }
@@ -108,9 +110,7 @@ export default function BookingPage() {
       setLoading(true)
       setSlots([])
       setDayOff(false)
-      fetch(
-        `/api/appointments/slots?date=${selectedDate}&serviceId=${selectedService.id}&barberId=${selectedBarber.id}`
-      )
+      fetch(`/api/appointments/slots?date=${selectedDate}&serviceId=${selectedService.id}&barberId=${selectedBarber.id}`)
         .then((r) => r.json())
         .then((data) => {
           const allSlots: { time: string; available: boolean }[] = data.slots ?? []
@@ -163,12 +163,7 @@ export default function BookingPage() {
       const res = await fetch("/api/waitlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          date: selectedDate,
-          name: waitlistName,
-          phone: waitlistPhone,
-          serviceId: selectedService.id,
-        }),
+        body: JSON.stringify({ date: selectedDate, name: waitlistName, phone: waitlistPhone, serviceId: selectedService.id }),
       })
       if (res.ok) {
         setWaitlistDone(true)
@@ -183,7 +178,6 @@ export default function BookingPage() {
     }
   }
 
-  // ── Client name autocomplete (public, names only) ──────────
   useEffect(() => {
     if (clientName.length >= 1) {
       fetch(`/api/search-client?q=${encodeURIComponent(clientName)}`)
@@ -204,11 +198,7 @@ export default function BookingPage() {
   const todayStr = toLocalDateStr(todayLocal)
   const currentWeekStart = getWeekStart(todayLocal)
   const weekDays = getWeekDays(weekStart)
-
-  const monthLabel = weekStart.toLocaleDateString("es-ES", {
-    month: "long",
-    year: "numeric",
-  })
+  const monthLabel = weekStart.toLocaleDateString("es-ES", { month: "long", year: "numeric" })
 
   const handleDateSelect = (date: Date) => {
     const d = new Date(date)
@@ -230,479 +220,415 @@ export default function BookingPage() {
     setWeekStart(next)
   }
 
-  // ── Misc ───────────────────────────────────────────────────
   const formatPrice = (price: number) =>
-    new Intl.NumberFormat("es-CO", {
-      style: "currency",
-      currency: "COP",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(price)
+    new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(price)
 
   const progressSteps: Step[] = ["barber", "service", "datetime", "info"]
-  const visibleProgressSteps =
-    barbers.length <= 1 ? progressSteps.filter((s) => s !== "barber") : progressSteps
-
+  const visibleProgressSteps = barbers.length <= 1 ? progressSteps.filter((s) => s !== "barber") : progressSteps
   const allSteps: Step[] =
     barbers.length <= 1
       ? ["service", "datetime", "info", "confirm"]
       : ["barber", "service", "datetime", "info", "confirm"]
 
+  // ── Input styles ───────────────────────────────────────────
+  const inputCls = "w-full p-3.5 bg-[#151515] border border-white/12 rounded-xl text-white placeholder-white/25 focus:border-[#e84118] focus:outline-none transition text-sm"
+
   // ── Render ─────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#1a0a0a] to-[#2d1515]">
-      <div className="max-w-lg mx-auto px-4 py-8">
+    <div className="min-h-screen text-white">
+      {/* Barbershop background */}
+      <div className="fixed inset-0 z-0">
+        <Image src="/barberia.jpg" alt="" fill className="object-cover blur-sm scale-105" style={{ opacity: 0.45 }} priority />
+        <div className="absolute inset-0 bg-black/70" />
+      </div>
+
+      {/* Ambient glow */}
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-[#e84118]/8 rounded-full blur-[120px] pointer-events-none z-10" />
+
+      <div className="relative z-10 max-w-md mx-auto px-4 py-10 pb-20">
+
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-white">
-            <span className="text-[#e84118]">Frailin</span> Studio
-          </h1>
-          <p className="text-white/60 mt-1">Agenda tu cita</p>
+        <div className="flex items-center justify-between mb-10">
+          <Link href="/" className="flex items-center gap-1.5 text-white/30 hover:text-white/70 transition text-sm">
+            <ArrowLeft size={15} />
+            <span>Inicio</span>
+          </Link>
+          <div className="flex items-center gap-2.5">
+            <Image src="/logo2.png" alt="Frailin Studio" width={28} height={28} />
+            <span className="font-black text-base tracking-wide">
+              <span className="text-[#e84118]">Frailin</span> Studio
+            </span>
+          </div>
+          <div className="w-16" />
         </div>
 
         {/* Progress */}
-        <div className="flex justify-center gap-2 mb-8">
-          {visibleProgressSteps.map((s) => (
-            <div
-              key={s}
-              className={`h-2 w-12 rounded-full transition ${
-                allSteps.indexOf(step) >= allSteps.indexOf(s)
-                  ? "bg-[#e84118]"
-                  : "bg-white/20"
-              }`}
-            />
-          ))}
+        <div className="flex items-center justify-center gap-2 mb-10">
+          {visibleProgressSteps.map((s) => {
+            const active = allSteps.indexOf(step) >= allSteps.indexOf(s)
+            return (
+              <div
+                key={s}
+                className={`h-1.5 rounded-full transition-all duration-500 ${active ? "w-8 bg-[#e84118]" : "w-5 bg-white/10"}`}
+              />
+            )
+          })}
         </div>
 
-        {/* Card */}
-        <div className="bg-white rounded-2xl shadow-2xl p-6">
+        {/* ── Step: Barber ── */}
+        {step === "barber" && (
+          <div>
+            <div className="mb-8">
+              <p className="text-xs font-bold text-[#e84118] tracking-[0.2em] uppercase mb-2">Paso 1</p>
+              <h2 className="text-2xl font-black">Elige tu barbero</h2>
+            </div>
+            <div className="space-y-3">
+              {barbers.map((barber) => (
+                <button
+                  key={barber.id}
+                  onClick={() => { setSelectedBarber(barber); setStep("service") }}
+                  className="w-full text-left p-4 rounded-2xl border border-white/12 bg-[#1a1a1a] hover:border-[#e84118]/50 hover:bg-[#e84118]/5 transition-all group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="relative w-14 h-14 rounded-full overflow-hidden bg-white/5 flex-shrink-0 ring-2 ring-white/5 group-hover:ring-[#e84118]/30 transition">
+                      {barber.avatarUrl || barber.image ? (
+                        <Image src={barber.avatarUrl || barber.image || ""} alt={barber.name || ""} fill className="object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-xl font-black text-[#e84118]">
+                          {(barber.name || "B").charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-bold text-white text-lg">{barber.name || "Barbero"}</p>
+                      {barber.specialty && <p className="text-sm text-white/40 mt-0.5">{barber.specialty}</p>}
+                    </div>
+                    <div className="ml-auto w-8 h-8 rounded-full bg-white/5 group-hover:bg-[#e84118] flex items-center justify-center transition-all">
+                      <ChevronRight size={14} className="text-white/40 group-hover:text-white transition" />
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
-          {/* ── Step: Barber ── */}
-          {step === "barber" && (
-            <div>
-              <h2 className="text-xl font-bold mb-4">Elige tu barbero</h2>
-              <div className="space-y-3">
-                {barbers.map((barber) => (
-                  <button
-                    key={barber.id}
-                    onClick={() => {
-                      setSelectedBarber(barber)
-                      setStep("service")
-                    }}
-                    className={`w-full text-left p-4 rounded-xl border-2 transition hover:border-[#e84118] ${
-                      selectedBarber?.id === barber.id
-                        ? "border-[#e84118] bg-[#e84118]/5"
-                        : "border-gray-200"
-                    }`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="relative w-14 h-14 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
-                        {barber.avatarUrl || barber.image ? (
-                          <Image
-                            src={barber.avatarUrl || barber.image || ""}
-                            alt={barber.name || "Barbero"}
-                            fill
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-gray-400">
-                            {(barber.name || "B").charAt(0).toUpperCase()}
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <p className="font-semibold text-lg">{barber.name || "Barbero"}</p>
-                        {barber.specialty && (
-                          <p className="text-sm text-gray-500">{barber.specialty}</p>
-                        )}
+        {/* ── Step: Service ── */}
+        {step === "service" && (
+          <div>
+            <div className="mb-8">
+              <p className="text-xs font-bold text-[#e84118] tracking-[0.2em] uppercase mb-2">
+                {barbers.length > 1 ? "Paso 2" : "Paso 1"}
+              </p>
+              <h2 className="text-2xl font-black">Elige tu servicio</h2>
+            </div>
+            <div className="space-y-3">
+              {services.map((service) => (
+                <button
+                  key={service.id}
+                  onClick={() => { setSelectedService(service); setStep("datetime") }}
+                  className="w-full text-left p-5 rounded-2xl border border-white/12 bg-[#1a1a1a] hover:border-[#e84118]/50 hover:bg-[#e84118]/5 transition-all group"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <p className="font-bold text-white text-base">{service.name}</p>
+                      {service.description && (
+                        <p className="text-sm text-white/40 mt-1">{service.description}</p>
+                      )}
+                      <div className="flex items-center gap-1.5 mt-2.5">
+                        <Clock size={12} className="text-white/25" />
+                        <span className="text-xs text-white/30">{service.duration} min</span>
                       </div>
                     </div>
-                  </button>
-                ))}
-              </div>
+                    <span className="font-black text-[#e84118] text-lg shrink-0">{formatPrice(service.price)}</span>
+                  </div>
+                </button>
+              ))}
             </div>
-          )}
+            {barbers.length > 1 && (
+              <button onClick={() => setStep("barber")} className="w-full mt-5 py-3.5 rounded-xl border border-white/12 text-white/50 hover:text-white hover:border-white/20 transition text-sm font-medium flex items-center justify-center gap-2">
+                <ArrowLeft size={14} /> Atrás
+              </button>
+            )}
+          </div>
+        )}
 
-          {/* ── Step: Service ── */}
-          {step === "service" && (
-            <div>
-              <h2 className="text-xl font-bold mb-4">Elige tu servicio</h2>
-              <div className="space-y-3">
-                {services.map((service) => (
-                  <button
-                    key={service.id}
-                    onClick={() => {
-                      setSelectedService(service)
-                      setStep("datetime")
-                    }}
-                    className={`w-full text-left p-4 rounded-xl border-2 transition hover:border-[#e84118] ${
-                      selectedService?.id === service.id
-                        ? "border-[#e84118] bg-[#e84118]/5"
-                        : "border-gray-200"
-                    }`}
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-semibold">{service.name}</p>
-                        {service.description && (
-                          <p className="text-sm text-gray-500">{service.description}</p>
-                        )}
-                        <p className="text-xs text-gray-400 mt-1">{service.duration} min</p>
-                      </div>
-                      <span className="font-bold text-[#e84118]">
-                        {formatPrice(service.price)}
-                      </span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-              {barbers.length > 1 && (
-                <button
-                  onClick={() => setStep("barber")}
-                  className="w-full mt-4 py-3 rounded-xl border-2 border-gray-200 font-medium hover:bg-gray-50 transition"
-                >
-                  Atrás
-                </button>
-              )}
+        {/* ── Step: Date + Time ── */}
+        {step === "datetime" && (
+          <div>
+            <div className="mb-8">
+              <p className="text-xs font-bold text-[#e84118] tracking-[0.2em] uppercase mb-2">
+                {barbers.length > 1 ? "Paso 3" : "Paso 2"}
+              </p>
+              <h2 className="text-2xl font-black">Fecha y hora</h2>
             </div>
-          )}
 
-          {/* ── Step: Date + Time (combined) ── */}
-          {step === "datetime" && (
-            <div>
-              <h2 className="text-xl font-bold mb-5">Seleccionar fecha y hora</h2>
+            {/* Month nav */}
+            <div className="flex items-center justify-between mb-4">
+              <button
+                onClick={prevWeek}
+                disabled={weekStart.getTime() <= currentWeekStart.getTime()}
+                className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 disabled:opacity-20 transition"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <span className="text-sm font-semibold capitalize text-white/60">{monthLabel}</span>
+              <button onClick={nextWeek} className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition">
+                <ChevronRight size={16} />
+              </button>
+            </div>
 
-              {/* Month label + week arrows */}
-              <div className="flex items-center justify-between mb-3">
-                <button
-                  onClick={prevWeek}
-                  disabled={weekStart.getTime() <= currentWeekStart.getTime()}
-                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 disabled:opacity-30 transition text-xl leading-none"
-                >
-                  ‹
-                </button>
-                <span className="text-sm font-semibold capitalize text-gray-700">
-                  {monthLabel}
-                </span>
-                <button
-                  onClick={nextWeek}
-                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition text-xl leading-none"
-                >
-                  ›
-                </button>
+            {/* Week strip */}
+            <div className="grid grid-cols-7 gap-1.5 mb-6">
+              {weekDays.map((day, i) => {
+                const dateStr = toLocalDateStr(day)
+                const isPast = day.getTime() < todayLocal.getTime()
+                const isToday = dateStr === todayStr
+                const isSelected = dateStr === selectedDate
+                return (
+                  <div key={i} className="flex flex-col items-center gap-1.5">
+                    <span className="text-[10px] font-medium text-white/25 uppercase">{DAY_LABELS[i]}</span>
+                    <button
+                      onClick={() => handleDateSelect(day)}
+                      disabled={isPast}
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition select-none
+                        ${isSelected ? "bg-[#e84118] text-white shadow-lg shadow-[#e84118]/30"
+                          : isToday ? "bg-white/8 text-white ring-1 ring-white/20"
+                          : isPast ? "text-white/15 cursor-not-allowed"
+                          : "text-white/60 hover:bg-white/8 hover:text-white"
+                        }`}
+                    >
+                      {day.getDate()}
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-white/5 mb-5" />
+
+            {/* Time slots */}
+            {!selectedDate ? (
+              <p className="text-center text-white/25 text-sm py-8">Selecciona un día para ver los horarios</p>
+            ) : loading ? (
+              <div className="flex flex-col items-center py-10 gap-3">
+                <div className="w-8 h-8 rounded-full border-2 border-[#e84118]/20 border-t-[#e84118] animate-spin" />
+                <p className="text-sm text-white/30">Cargando horarios...</p>
               </div>
-
-              {/* Week strip */}
-              <div className="grid grid-cols-7 gap-1 mb-5">
-                {weekDays.map((day, i) => {
-                  const dateStr = toLocalDateStr(day)
-                  const isPast = day.getTime() < todayLocal.getTime()
-                  const isToday = dateStr === todayStr
-                  const isSelected = dateStr === selectedDate
-
-                  return (
-                    <div key={i} className="flex flex-col items-center gap-1">
-                      <span className="text-[11px] text-gray-400">{DAY_LABELS[i]}</span>
-                      <button
-                        onClick={() => handleDateSelect(day)}
-                        disabled={isPast}
-                        className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium transition select-none
-                          ${
-                            isSelected
-                              ? "bg-[#e84118] text-white"
-                              : isToday
-                              ? "border-2 border-gray-800 text-gray-800"
-                              : isPast
-                              ? "text-gray-300 cursor-not-allowed"
-                              : "text-gray-700 hover:bg-gray-100"
-                          }
-                        `}
-                      >
-                        {day.getDate()}
+            ) : dayOff ? (
+              <div className="text-center py-8">
+                <p className="text-white/50 font-medium">Este día no hay servicio</p>
+                <p className="text-sm text-white/25 mt-1">Elige otra fecha</p>
+              </div>
+            ) : slots.length === 0 ? (
+              <div className="text-center py-4">
+                <p className="text-white/40 mb-4 text-sm">No hay horarios disponibles para este día</p>
+                {waitlistDone ? (
+                  <div className="bg-emerald-900/20 border border-emerald-500/20 rounded-xl p-4">
+                    <p className="text-emerald-400 font-medium text-sm">Te avisamos si se abre un horario ✓</p>
+                  </div>
+                ) : showWaitlist ? (
+                  <div className="text-left space-y-3">
+                    <p className="text-sm text-white/50 font-medium mb-3">Lista de espera</p>
+                    <input type="text" placeholder="Tu nombre" value={waitlistName} onChange={(e) => setWaitlistName(e.target.value)} className={inputCls} />
+                    <input type="tel" placeholder="+57 3001234567" value={waitlistPhone} onChange={(e) => setWaitlistPhone(e.target.value)} className={inputCls} />
+                    <div className="flex gap-3">
+                      <button onClick={() => setShowWaitlist(false)} className="flex-1 py-3 rounded-xl border border-white/12 text-white/50 hover:text-white transition text-sm">Cancelar</button>
+                      <button onClick={handleWaitlistSubmit} disabled={waitlistSubmitting || !waitlistName || !waitlistPhone} className="flex-1 py-3 rounded-xl bg-[#e84118] text-white font-medium hover:bg-[#c0392b] transition disabled:opacity-50 text-sm">
+                        {waitlistSubmitting ? "Enviando..." : "Avisarme"}
                       </button>
                     </div>
+                    {error && <p className="text-red-400 text-xs">{error}</p>}
+                  </div>
+                ) : (
+                  <button onClick={() => setShowWaitlist(true)} className="w-full py-3.5 rounded-xl border border-[#e84118]/40 text-[#e84118] font-medium hover:bg-[#e84118]/10 transition text-sm">
+                    Unirme a lista de espera
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="grid grid-cols-4 gap-2">
+                {slots.map((slot) => {
+                  const [h, m] = slot.split(":").map(Number)
+                  const period = h >= 12 ? "PM" : "AM"
+                  const hour = h % 12 || 12
+                  const timeStr = `${hour}:${m.toString().padStart(2, "0")}`
+                  const isSelected = selectedTime === slot
+                  return (
+                    <button
+                      key={slot}
+                      onClick={() => setSelectedTime(slot)}
+                      className={`py-3 rounded-xl border transition flex flex-col items-center gap-0.5
+                        ${isSelected
+                          ? "bg-[#e84118] border-[#e84118] text-white shadow-lg shadow-[#e84118]/25"
+                          : "border-white/12 bg-[#1a1a1a] text-white/70 hover:border-[#e84118]/40 hover:text-white"
+                        }`}
+                    >
+                      <span className="font-bold text-[13px] leading-tight">{timeStr}</span>
+                      <span className={`text-[10px] leading-tight ${isSelected ? "text-white/70" : "text-white/30"}`}>{period}</span>
+                    </button>
                   )
                 })}
               </div>
+            )}
 
-              {/* Divider */}
-              <hr className="mb-4" />
+            {/* Nav */}
+            <div className="flex gap-3 mt-8">
+              <button onClick={() => setStep("service")} className="flex-1 py-3.5 rounded-xl border border-white/12 text-white/50 hover:text-white hover:border-white/20 transition text-sm font-medium flex items-center justify-center gap-2">
+                <ArrowLeft size={14} /> Atrás
+              </button>
+              <button
+                onClick={() => selectedDate && selectedTime && setStep("info")}
+                disabled={!selectedDate || !selectedTime}
+                className="flex-1 py-3.5 rounded-xl bg-[#e84118] text-white font-semibold hover:bg-[#c0392b] transition disabled:opacity-30 text-sm"
+              >
+                Siguiente
+              </button>
+            </div>
+          </div>
+        )}
 
-              {/* Time slots area */}
-              {!selectedDate ? (
-                <p className="text-center text-gray-400 text-sm py-6">
-                  Selecciona un día para ver los horarios
-                </p>
-              ) : loading ? (
-                <div className="flex flex-col items-center justify-center py-8 gap-3">
-                  <div className="relative w-8 h-8">
-                    <div className="absolute inset-0 rounded-full border-2 border-gray-200" />
-                    <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-[#e84118] animate-spin" />
-                  </div>
-                  <p className="text-sm text-gray-400">Cargando horarios...</p>
-                </div>
-              ) : dayOff ? (
-                <div className="text-center py-6">
-                  <p className="text-gray-500 font-medium">Este día no hay servicio</p>
-                  <p className="text-sm text-gray-400 mt-1">Elige otra fecha</p>
-                </div>
-              ) : slots.length === 0 ? (
-                <div className="text-center py-4">
-                  <p className="text-gray-500 mb-4">No hay horarios disponibles</p>
-                  {waitlistDone ? (
-                    <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-                      <p className="text-green-700 font-medium">
-                        Te avisaremos si se abre un horario
-                      </p>
-                    </div>
-                  ) : showWaitlist ? (
-                    <div className="text-left space-y-3">
-                      <p className="text-sm text-gray-600 font-medium">
-                        Unirme a la lista de espera
-                      </p>
-                      <input
-                        type="text"
-                        placeholder="Tu nombre"
-                        value={waitlistName}
-                        onChange={(e) => setWaitlistName(e.target.value)}
-                        className="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-[#e84118] focus:outline-none"
-                      />
-                      <input
-                        type="tel"
-                        placeholder="+57 3001234567"
-                        value={waitlistPhone}
-                        onChange={(e) => setWaitlistPhone(e.target.value)}
-                        className="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-[#e84118] focus:outline-none"
-                      />
-                      <div className="flex gap-3">
-                        <button
-                          onClick={() => setShowWaitlist(false)}
-                          className="flex-1 py-3 rounded-xl border-2 border-gray-200 font-medium hover:bg-gray-50 transition text-sm"
-                        >
-                          Cancelar
-                        </button>
-                        <button
-                          onClick={handleWaitlistSubmit}
-                          disabled={waitlistSubmitting || !waitlistName || !waitlistPhone}
-                          className="flex-1 py-3 rounded-xl bg-[#e84118] text-white font-medium hover:bg-[#c0392b] transition disabled:opacity-50 text-sm"
-                        >
-                          {waitlistSubmitting ? "Enviando..." : "Avisarme"}
-                        </button>
-                      </div>
-                      {error && <p className="text-red-500 text-sm">{error}</p>}
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => setShowWaitlist(true)}
-                      className="w-full py-3 rounded-xl border-2 border-[#e84118] text-[#e84118] font-medium hover:bg-[#e84118]/5 transition"
-                    >
-                      Unirme a lista de espera
-                    </button>
-                  )}
-                </div>
-              ) : (
-                /* 4-column time grid */
-                <div className="grid grid-cols-4 gap-2">
-                  {slots.map((slot) => {
-                    const [h, m] = slot.split(":").map(Number)
-                    const period = h >= 12 ? "PM" : "AM"
-                    const hour = h % 12 || 12
-                    const timeStr = `${hour}:${m.toString().padStart(2, "0")}`
-                    const isSelected = selectedTime === slot
-                    return (
+        {/* ── Step: Info ── */}
+        {step === "info" && (
+          <div>
+            <div className="mb-8">
+              <p className="text-xs font-bold text-[#e84118] tracking-[0.2em] uppercase mb-2">
+                {barbers.length > 1 ? "Paso 4" : "Paso 3"}
+              </p>
+              <h2 className="text-2xl font-black">Tus datos</h2>
+            </div>
+            <div className="space-y-4">
+              <div className="relative">
+                <label className="text-xs font-semibold text-white/40 uppercase tracking-wider block mb-2">Nombre *</label>
+                <input
+                  type="text"
+                  value={clientName}
+                  onChange={(e) => setClientName(e.target.value)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                  onFocus={() => nameSuggestions.length > 0 && setShowSuggestions(true)}
+                  placeholder="Tu nombre completo"
+                  className={inputCls}
+                />
+                {showSuggestions && (
+                  <div className="absolute z-20 top-full left-0 right-0 mt-1.5 bg-[#1a1a1a] border border-white/12 rounded-xl shadow-2xl overflow-hidden">
+                    {nameSuggestions.map((name) => (
                       <button
-                        key={slot}
-                        onClick={() => setSelectedTime(slot)}
-                        className={`py-3 rounded-xl border-2 transition flex flex-col items-center gap-0.5
-                          ${
-                            isSelected
-                              ? "bg-[#e84118] border-[#e84118] text-white"
-                              : "border-gray-200 text-gray-800 hover:border-[#e84118]"
-                          }
-                        `}
+                        key={name}
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => { setClientName(name); setShowSuggestions(false) }}
+                        className="w-full text-left px-4 py-3 hover:bg-white/5 transition border-b border-white/5 last:border-0 flex items-center gap-3"
                       >
-                        <span className="font-bold text-[13px] leading-tight">{timeStr}</span>
-                        <span
-                          className={`text-[10px] leading-tight ${
-                            isSelected ? "text-white/80" : "text-gray-400"
-                          }`}
-                        >
-                          {period}
-                        </span>
+                        <div className="w-7 h-7 rounded-full bg-[#e84118]/15 flex items-center justify-center text-[#e84118] font-bold text-xs flex-shrink-0">
+                          {name[0].toUpperCase()}
+                        </div>
+                        <span className="text-sm text-white/70">{name}</span>
                       </button>
-                    )
-                  })}
-                </div>
-              )}
-
-              {/* Navigation buttons */}
-              <div className="flex gap-3 mt-6">
-                <button
-                  onClick={() => setStep("service")}
-                  className="flex-1 py-3 rounded-xl border-2 border-gray-200 font-medium hover:bg-gray-50 transition"
-                >
-                  Atrás
-                </button>
-                <button
-                  onClick={() => selectedDate && selectedTime && setStep("info")}
-                  disabled={!selectedDate || !selectedTime}
-                  className="flex-1 py-3 rounded-xl bg-[#e84118] text-white font-medium hover:bg-[#c0392b] transition disabled:opacity-50"
-                >
-                  Siguiente
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* ── Step: Client Info ── */}
-          {step === "info" && (
-            <div>
-              <h2 className="text-xl font-bold mb-4">Tus datos</h2>
-              <div className="space-y-4">
-                <div className="relative">
-                  <label className="text-sm font-medium text-gray-600">Nombre *</label>
-                  <input
-                    type="text"
-                    value={clientName}
-                    onChange={(e) => setClientName(e.target.value)}
-                    onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-                    onFocus={() => nameSuggestions.length > 0 && setShowSuggestions(true)}
-                    placeholder="Tu nombre"
-                    className="w-full mt-1 p-3 border-2 border-gray-200 rounded-xl focus:border-[#e84118] focus:outline-none"
-                  />
-                  {showSuggestions && (
-                    <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-white border-2 border-gray-100 rounded-xl shadow-xl overflow-hidden">
-                      {nameSuggestions.map((name) => (
-                        <button
-                          key={name}
-                          onMouseDown={(e) => e.preventDefault()}
-                          onClick={() => {
-                            setClientName(name)
-                            setShowSuggestions(false)
-                          }}
-                          className="w-full text-left px-4 py-3 hover:bg-gray-50 transition border-b border-gray-100 last:border-0 flex items-center gap-3"
-                        >
-                          <div className="w-8 h-8 rounded-full bg-[#e84118]/10 flex items-center justify-center text-[#e84118] font-bold text-sm flex-shrink-0">
-                            {name[0].toUpperCase()}
-                          </div>
-                          <span className="text-sm font-medium text-gray-800">{name}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">WhatsApp *</label>
-                  <input
-                    type="tel"
-                    value={clientPhone}
-                    onChange={(e) => setClientPhone(e.target.value)}
-                    placeholder="+57 3001234567"
-                    className="w-full mt-1 p-3 border-2 border-gray-200 rounded-xl focus:border-[#e84118] focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Email (opcional)</label>
-                  <input
-                    type="email"
-                    value={clientEmail}
-                    onChange={(e) => setClientEmail(e.target.value)}
-                    placeholder="tu@email.com"
-                    className="w-full mt-1 p-3 border-2 border-gray-200 rounded-xl focus:border-[#e84118] focus:outline-none"
-                  />
-                </div>
-              </div>
-              <div className="flex gap-3 mt-6">
-                <button
-                  onClick={() => setStep("datetime")}
-                  className="flex-1 py-3 rounded-xl border-2 border-gray-200 font-medium hover:bg-gray-50 transition"
-                >
-                  Atrás
-                </button>
-                <button
-                  onClick={() => clientName && clientPhone && setStep("confirm")}
-                  disabled={!clientName || !clientPhone}
-                  className="flex-1 py-3 rounded-xl bg-[#e84118] text-white font-medium hover:bg-[#c0392b] transition disabled:opacity-50"
-                >
-                  Revisar
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* ── Step: Confirm ── */}
-          {step === "confirm" && (
-            <div>
-              <h2 className="text-xl font-bold mb-4">Confirma tu cita</h2>
-              <div className="bg-gray-50 rounded-xl p-4 space-y-3">
-                {selectedBarber && barbers.length > 1 && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Barbero</span>
-                    <span className="font-medium">{selectedBarber.name}</span>
+                    ))}
                   </div>
                 )}
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Servicio</span>
-                  <span className="font-medium">{selectedService?.name}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Fecha</span>
-                  <span className="font-medium">
-                    {selectedDate &&
-                      new Date(selectedDate + "T12:00:00").toLocaleDateString("es-CO", {
-                        weekday: "long",
-                        day: "numeric",
-                        month: "long",
-                      })}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Hora</span>
-                  <span className="font-medium">{selectedTime && formatTime(selectedTime)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Duración</span>
-                  <span className="font-medium">{selectedService?.duration} min</span>
-                </div>
-                <hr />
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Total</span>
-                  <span className="font-bold text-lg text-[#e84118]">
-                    {selectedService && formatPrice(selectedService.price)}
-                  </span>
-                </div>
               </div>
-
-              <div className="mt-4 bg-gray-50 rounded-xl p-4">
-                <p className="text-sm text-gray-500">
-                  {clientName} · {clientPhone}
-                </p>
+              <div>
+                <label className="text-xs font-semibold text-white/40 uppercase tracking-wider block mb-2">WhatsApp *</label>
+                <input type="tel" value={clientPhone} onChange={(e) => setClientPhone(e.target.value)} placeholder="+57 300 123 4567" className={inputCls} />
               </div>
-
-              <div className="flex gap-3 mt-6">
-                <button
-                  onClick={() => setStep("info")}
-                  className="flex-1 py-3 rounded-xl border-2 border-gray-200 font-medium hover:bg-gray-50 transition"
-                >
-                  Atrás
-                </button>
-                <button
-                  onClick={handleSubmit}
-                  disabled={submitting}
-                  className="flex-1 py-3 rounded-xl bg-[#e84118] text-white font-semibold hover:bg-[#c0392b] transition disabled:opacity-50"
-                >
-                  {submitting ? "Agendando..." : "Confirmar Cita"}
-                </button>
+              <div>
+                <label className="text-xs font-semibold text-white/40 uppercase tracking-wider block mb-2">Email <span className="normal-case font-normal text-white/20">(opcional)</span></label>
+                <input type="email" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} placeholder="tu@email.com" className={inputCls} />
               </div>
-
-              {error && (
-                <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
-                  {error}
-                </div>
-              )}
             </div>
-          )}
-        </div>
+            <div className="flex gap-3 mt-8">
+              <button onClick={() => setStep("datetime")} className="flex-1 py-3.5 rounded-xl border border-white/12 text-white/50 hover:text-white hover:border-white/20 transition text-sm font-medium flex items-center justify-center gap-2">
+                <ArrowLeft size={14} /> Atrás
+              </button>
+              <button
+                onClick={() => clientName && clientPhone && setStep("confirm")}
+                disabled={!clientName || !clientPhone}
+                className="flex-1 py-3.5 rounded-xl bg-[#e84118] text-white font-semibold hover:bg-[#c0392b] transition disabled:opacity-30 text-sm"
+              >
+                Revisar
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── Step: Confirm ── */}
+        {step === "confirm" && (
+          <div>
+            <div className="mb-8">
+              <p className="text-xs font-bold text-[#e84118] tracking-[0.2em] uppercase mb-2">Último paso</p>
+              <h2 className="text-2xl font-black">Confirma tu cita</h2>
+            </div>
+
+            {/* Summary card */}
+            <div className="bg-[#1a1a1a] border border-white/12 rounded-2xl overflow-hidden mb-4">
+              {/* Header */}
+              <div className="px-5 py-4 border-b border-white/5 flex items-center gap-3">
+                <div className="w-8 h-8 bg-[#e84118]/15 rounded-lg flex items-center justify-center">
+                  <Scissors size={15} className="text-[#e84118]" />
+                </div>
+                <p className="font-bold text-white">{selectedService?.name}</p>
+              </div>
+              {/* Details */}
+              <div className="divide-y divide-white/5">
+                {selectedBarber && barbers.length > 1 && (
+                  <div className="flex justify-between items-center px-5 py-3.5">
+                    <span className="text-sm text-white/40">Barbero</span>
+                    <span className="text-sm font-semibold text-white">{selectedBarber.name}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center px-5 py-3.5">
+                  <span className="text-sm text-white/40">Fecha</span>
+                  <span className="text-sm font-semibold text-white capitalize">
+                    {selectedDate && new Date(selectedDate + "T12:00:00").toLocaleDateString("es-CO", { weekday: "long", day: "numeric", month: "long" })}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center px-5 py-3.5">
+                  <span className="text-sm text-white/40">Hora</span>
+                  <span className="text-sm font-semibold text-white">{selectedTime && formatTime(selectedTime)}</span>
+                </div>
+                <div className="flex justify-between items-center px-5 py-3.5">
+                  <span className="text-sm text-white/40">Duración</span>
+                  <span className="text-sm font-semibold text-white">{selectedService?.duration} min</span>
+                </div>
+                <div className="flex justify-between items-center px-5 py-4 bg-[#e84118]/5">
+                  <span className="text-sm font-bold text-white">Total</span>
+                  <span className="font-black text-xl text-[#e84118]">{selectedService && formatPrice(selectedService.price)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Client summary */}
+            <div className="bg-[#1a1a1a] border border-white/12 rounded-xl px-5 py-3.5 mb-8 flex items-center gap-3">
+              <div className="w-8 h-8 bg-[#e84118]/15 rounded-full flex items-center justify-center text-[#e84118] font-black text-sm">
+                {clientName[0]?.toUpperCase()}
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-white">{clientName}</p>
+                <p className="text-xs text-white/35">{clientPhone}</p>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button onClick={() => setStep("info")} className="flex-1 py-3.5 rounded-xl border border-white/12 text-white/50 hover:text-white hover:border-white/20 transition text-sm font-medium flex items-center justify-center gap-2">
+                <ArrowLeft size={14} /> Atrás
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={submitting}
+                className="flex-1 py-3.5 rounded-xl bg-gradient-to-r from-[#e84118] to-[#c0392b] text-white font-bold hover:shadow-lg hover:shadow-[#e84118]/25 transition-all disabled:opacity-50 text-sm"
+              >
+                {submitting ? "Agendando..." : "Confirmar Cita"}
+              </button>
+            </div>
+
+            {error && (
+              <div className="mt-4 p-3.5 bg-red-900/20 border border-red-500/20 rounded-xl text-red-400 text-sm">
+                {error}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

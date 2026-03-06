@@ -3,6 +3,7 @@ import Image from "next/image"
 import { prisma } from "@/lib/prisma"
 import { to12Hour } from "@/lib/utils"
 import HeroSection from "@/components/HeroSection"
+import ParallaxBg from "@/components/ParallaxBg"
 import {
   Clock,
   Calendar,
@@ -52,10 +53,13 @@ export default async function Home() {
   ])
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white overflow-x-hidden">
+    <div className="min-h-screen text-white overflow-x-hidden">
+
+      {/* Parallax barbershop background */}
+      <ParallaxBg />
 
       {/* ── Nav ── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a]/85 backdrop-blur-xl border-b border-white/5">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Image src="/logo2.png" alt="Frailin Studio" width={32} height={32} />
@@ -82,6 +86,9 @@ export default async function Home() {
           </div>
         </div>
       </nav>
+
+      {/* ── Content above background ── */}
+      <div className="relative z-10">
 
       {/* ── Hero ── */}
       <HeroSection galleryImages={gallery.map((item) => item.imageUrl)} />
@@ -553,6 +560,7 @@ export default async function Home() {
           </div>
         </div>
       </footer>
+      </div>{/* end relative z-10 */}
     </div>
   )
 }
