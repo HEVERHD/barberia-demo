@@ -31,12 +31,13 @@ function ConfirmContent() {
 
   const formatDate = (d: string) => {
     if (!d) return ""
-    return new Date(d + "T12:00:00").toLocaleDateString("es-CO", {
+    return new Intl.DateTimeFormat("es-CO", {
       weekday: "long",
       day: "numeric",
       month: "long",
       year: "numeric",
-    })
+      timeZone: "America/Bogota",
+    }).format(new Date(d + "T12:00:00"))
   }
 
   const addToCalendarUrl = () => {

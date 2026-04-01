@@ -1248,6 +1248,8 @@ export default function AppointmentsPage() {
                           {new Date(apt.date).toLocaleTimeString("es-CO", {
                             hour: "2-digit",
                             minute: "2-digit",
+                            hour12: true,
+                            timeZone: COL_TZ,
                           })}
                         </p>
                         <span
