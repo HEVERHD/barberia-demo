@@ -1,4 +1,5 @@
 import twilio from "twilio"
+import { SNSClient, PublishCommand } from "@aws-sdk/client-sns"
 
 const client = twilio(
   process.env.TWILIO_ACCOUNT_SID,
@@ -63,23 +64,36 @@ export async function sendWhatsAppTemplate(
   }
 }
 
-/** Send a plain SMS using the same Twilio number (fallback when WhatsApp fails) */
+/** Send a plain SMS via AWS SNS (fallback when WhatsApp fails) */
 export async function sendSMS(to: string, message: string) {
-  if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) {
+  if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
     console.log(`[SMS Mock] To: ${to} | Message: ${message}`)
     return
   }
-
-  const smsFrom = (process.env.TWILIO_WHATSAPP_FROM || "whatsapp:+14155238886").replace("whatsapp:", "")
 
   let phone = to.replace(/\s+/g, "").replace(/^0+/, "")
   if (!phone.startsWith("+")) {
     phone = phone.startsWith("57") ? `+${phone}` : `+57${phone}`
   }
 
+  const sns = new SNSClient({
+    region: process.env.AWS_REGION || "us-east-1",
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    },
+  })
+
   try {
-    const msg = await client.messages.create({ from: smsFrom, to: phone, body: message })
-    console.log(`[SMS Fallback] Sent to ${phone} | SID: ${msg.sid}`)
+    const result = await sns.send(new PublishCommand({
+      PhoneNumber: phone,
+      Message: message,
+      MessageAttributes: {
+        "AWS.SNS.SMS.SMSType": { DataType: "String", StringValue: "Transactional" },
+        "AWS.SNS.SMS.SenderID": { DataType: "String", StringValue: "Frailin" },
+      },
+    }))
+    console.log(`[SMS Fallback] Sent to ${phone} | MessageId: ${result.MessageId}`)
   } catch (error: any) {
     console.error(`[SMS Fallback Error] ${error.message}`)
     throw error
