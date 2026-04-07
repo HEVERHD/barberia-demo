@@ -1,6 +1,9 @@
 import { PrismaClient } from "@prisma/client"
+import bcrypt from "bcryptjs"
 
 const prisma = new PrismaClient()
+
+const DEMO_PASSWORD = "barberia2024"
 
 const ADMINS = [
   { email: "hever11.hdgd@gmail.com", name: "Hever" },
@@ -8,12 +11,14 @@ const ADMINS = [
 ]
 
 async function main() {
-  // 1. Crear los dos usuarios admin
+  const hashedPassword = await bcrypt.hash(DEMO_PASSWORD, 10)
+
+  // 1. Crear los dos usuarios admin con contraseña
   for (const admin of ADMINS) {
     await prisma.user.upsert({
       where: { email: admin.email },
-      update: { role: "ADMIN" },
-      create: { name: admin.name, email: admin.email, role: "ADMIN" },
+      update: { role: "ADMIN", password: hashedPassword },
+      create: { name: admin.name, email: admin.email, role: "ADMIN", password: hashedPassword },
     })
     console.log("Admin creado:", admin.email)
   }
@@ -55,7 +60,8 @@ async function main() {
   }
   console.log("Servicios creados:", services.length)
   console.log("\n✅ Demo listo")
-  console.log("   Login: entrar con Google usando cualquiera de los dos emails")
+  console.log(`   Login email/contraseña: cualquier admin + "${DEMO_PASSWORD}"`)
+  console.log("   Login Google: cualquiera de los dos emails")
 }
 
 main()

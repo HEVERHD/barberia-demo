@@ -1,6 +1,8 @@
 import { NextAuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
+import CredentialsProvider from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
+import bcrypt from "bcryptjs"
 import { prisma } from "./prisma"
 
 export const authOptions: NextAuthOptions = {
@@ -9,13 +11,38 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   providers: [
+    CredentialsProvider({
+      name: "credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Contraseña", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) return null
+
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email },
+        })
+
+        if (!user || !user.password) return null
+        if (user.role !== "BARBER" && user.role !== "ADMIN") return null
+
+        const valid = await bcrypt.compare(credentials.password, user.password)
+        if (!valid) return null
+
+        return user
+      },
+    }),
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
   callbacks: {
-    async signIn({ user }) {
+    async signIn({ user, account }) {
+      // Skip role check for credentials — already validated in authorize()
+      if (account?.provider === "credentials") return true
+
       const dbUser = await prisma.user.findUnique({
         where: { email: user.email || "" },
         select: { role: true },
