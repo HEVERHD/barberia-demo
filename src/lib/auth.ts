@@ -46,30 +46,39 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account }) {
       // Skip role check for credentials — already validated in authorize()
-      if (account?.provider === "credentials") return true
+      if (!account || account.provider === "credentials") return true
 
-      const dbUser = await prisma.user.findUnique({
-        where: { email: user.email || "" },
-        select: { role: true },
-      })
-      if (!dbUser || (dbUser.role !== "BARBER" && dbUser.role !== "ADMIN")) {
+      try {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: user.email || "" },
+          select: { role: true },
+        })
+        if (!dbUser || (dbUser.role !== "BARBER" && dbUser.role !== "ADMIN")) {
+          return "/login?error=unauthorized"
+        }
+        return true
+      } catch (err) {
+        console.error("[auth] signIn callback error:", err)
         return "/login?error=unauthorized"
       }
-      return true
     },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
         token.role = (user as any).role
       }
-      // Always refresh role from DB so role changes take effect immediately
+      // Refresh role from DB
       if (token.id) {
-        const dbUser = await prisma.user.findUnique({
-          where: { id: token.id as string },
-          select: { role: true },
-        })
-        if (dbUser) {
-          token.role = dbUser.role
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.id as string },
+            select: { role: true },
+          })
+          if (dbUser) {
+            token.role = dbUser.role
+          }
+        } catch (err) {
+          console.error("[auth] jwt role refresh error:", err)
         }
       }
       return token
