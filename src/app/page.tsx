@@ -70,7 +70,7 @@ export default async function Home() {
     { name: "Diego R.", city: "Barranquilla", rating: 5, text: "Por fin una barbería que respeta mi tiempo. Llego a mi hora exacta y salgo listo. La app es intuitiva y el resultado siempre supera mis expectativas.", initials: "DR" },
   ]
 
-  const testimonials = reviews.length >= 2
+  const testimonials = reviews.length >= 1
     ? reviews.map((r: typeof reviews[number]) => ({
         name: r.clientName,
         city: "",
