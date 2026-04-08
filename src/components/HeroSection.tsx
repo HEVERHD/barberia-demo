@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowUpRight, ChevronDown } from "lucide-react"
+import { ArrowUpRight, ChevronDown, Scissors } from "lucide-react"
 import LiveQueueBadge from "@/components/LiveQueueBadge"
 
 const PHRASES = [
@@ -316,20 +316,28 @@ export default function HeroSection({ galleryImages = [], shopName = "Mi Barber�
                   className="fs-glow absolute rounded-full pointer-events-none"
                   style={{
                     inset: "20%",
-                    background: "radial-gradient(circle, rgba(217,119,6,0.28) 0%, transparent 70%)",
+                    background: "radial-gradient(circle, rgba(201,162,39,0.22) 0%, transparent 70%)",
                   }}
                 />
 
-                {/* Logo — floating */}
-                <div className="fs-float relative z-10" style={{ width: "46%", height: "46%" }}>
-                  <Image
-                    src="/logo2.png"
-                    alt="Mi Barbería"
-                    fill
-                    className="object-contain drop-shadow-2xl"
-                    style={{ filter: "drop-shadow(0 0 18px rgba(217,119,6,0.4))" }}
-                  />
-                </div>
+                {/* Center icon — shown when no gallery photos */}
+                {galleryImages.length === 0 && (
+                  <div className="fs-float relative z-10 flex items-center justify-center" style={{ width: "42%", height: "42%" }}>
+                    <div className="relative w-full h-full flex items-center justify-center">
+                      <div className="absolute inset-0 rounded-full border border-[#c9a227]/20 bg-[#c9a227]/5" />
+                      <Scissors
+                        size={48}
+                        className="text-[#c9a227]/70 lg:hidden"
+                        style={{ filter: "drop-shadow(0 0 10px rgba(201,162,39,0.35))" }}
+                      />
+                      <Scissors
+                        size={72}
+                        className="text-[#c9a227]/70 hidden lg:block"
+                        style={{ filter: "drop-shadow(0 0 14px rgba(201,162,39,0.35))" }}
+                      />
+                    </div>
+                  </div>
+                )}
 
                 {/* Brand line inside HUD */}
                 <div className="absolute bottom-9 left-1/2 -translate-x-1/2 text-center whitespace-nowrap">
