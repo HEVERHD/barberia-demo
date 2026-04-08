@@ -205,3 +205,14 @@ enum WaitlistStatus {
   BOOKED
   EXPIRED
 }
+
+model Review {
+  id         String   @id @default(cuid())
+  clientName String
+  rating     Int      // 1-5
+  comment    String
+  createdAt  DateTime @default(now())
+  approved   Boolean  @default(true)
+
+  @@index([approved])
+}

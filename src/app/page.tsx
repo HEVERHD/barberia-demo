@@ -37,6 +37,14 @@ async function getGallery() {
   })
 }
 
+async function getReviews() {
+  return prisma.review.findMany({
+    where: { approved: true },
+    orderBy: { createdAt: "desc" },
+    take: 4,
+  })
+}
+
 const formatPrice = (price: number) =>
   new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -46,13 +54,31 @@ const formatPrice = (price: number) =>
   }).format(price)
 
 export default async function Home() {
-  const [services, settings, gallery] = await Promise.all([
+  const [services, settings, gallery, reviews] = await Promise.all([
     getServices(),
     getSettings(),
     getGallery(),
+    getReviews(),
   ])
 
   const shopName = settings?.shopName || "Mi Barbería"
+
+  const staticTestimonials = [
+    { name: "Carlos M.", city: "Bogotá", rating: 5, text: "La mejor barbería que he visitado. El sistema de citas online es súper fácil y nunca tengo que esperar. Mi corte queda perfecto cada vez.", initials: "CM" },
+    { name: "Andrés P.", city: "Medellín", rating: 5, text: "Me encanta que me recuerdan la cita por WhatsApp. El barbero sabe exactamente lo que quiero sin que tenga que explicarlo de nuevo.", initials: "AP" },
+    { name: "Luis F.", city: "Cali", rating: 5, text: "Agendé desde mi celular en menos de 2 minutos. La confirmación llegó al instante. El servicio es impecable, 100% recomendado.", initials: "LF" },
+    { name: "Diego R.", city: "Barranquilla", rating: 5, text: "Por fin una barbería que respeta mi tiempo. Llego a mi hora exacta y salgo listo. La app es intuitiva y el resultado siempre supera mis expectativas.", initials: "DR" },
+  ]
+
+  const testimonials = reviews.length >= 2
+    ? reviews.map((r: typeof reviews[number]) => ({
+        name: r.clientName,
+        city: "",
+        rating: r.rating,
+        text: r.comment,
+        initials: r.clientName.slice(0, 2).toUpperCase(),
+      }))
+    : staticTestimonials
 
   return (
     <div className="min-h-screen text-white overflow-x-hidden">
@@ -384,6 +410,49 @@ export default async function Home() {
           </div>
         </section>
       )}
+
+      {/* ── Testimonials ── */}
+      <section className="py-28 border-t border-white/5">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="mb-16">
+            <p className="text-xs font-bold text-[#c9a227] tracking-[0.25em] uppercase mb-4">
+              Testimonios
+            </p>
+            <h2 className="text-4xl md:text-5xl font-black leading-tight">
+              Lo que dicen nuestros clientes
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-5">
+            {testimonials.map((t: typeof testimonials[number]) => (
+              <div
+                key={t.name}
+                className="bg-[#111] border border-white/8 rounded-2xl p-7 hover:border-[#c9a227]/20 transition-all duration-300"
+              >
+                <div className="flex items-center gap-1 mb-5">
+                  {Array.from({ length: t.rating }).map((_, i) => (
+                    <svg key={i} className="w-4 h-4 text-[#c9a227]" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                </div>
+                <p className="text-white/60 leading-relaxed text-sm mb-6">
+                  &ldquo;{t.text}&rdquo;
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[#c9a227]/15 border border-[#c9a227]/30 flex items-center justify-center">
+                    <span className="text-xs font-black text-[#c9a227]">{t.initials}</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-white">{t.name}</p>
+                    <p className="text-xs text-white/30">{t.city}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* ── CTA ── */}
       <section className="relative py-32 overflow-hidden border-t border-white/5">

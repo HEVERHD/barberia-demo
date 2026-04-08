@@ -5,6 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { ArrowUpRight, ChevronDown, Scissors } from "lucide-react"
 import LiveQueueBadge from "@/components/LiveQueueBadge"
+import AnimatedCounter from "@/components/AnimatedCounter"
 
 const PHRASES = [
   "sin esperas.",
@@ -403,12 +404,14 @@ export default function HeroSection({ galleryImages = [], shopName = "Mi Barber�
               {/* Stats */}
               <div className="fs-stats flex justify-center lg:justify-start gap-8 md:gap-14 pt-6 border-t border-white/5">
                 {[
-                  { value: "5+",  label: "Años de experiencia" },
-                  { value: "1K+", label: "Clientes atendidos" },
-                  { value: "4.9", label: "Calificación promedio" },
+                  { target: 5, suffix: "+", decimals: 0, label: "Años de experiencia" },
+                  { target: 1000, suffix: "+", decimals: 0, label: "Clientes atendidos" },
+                  { target: 4.9, suffix: "", decimals: 1, label: "Calificación promedio" },
                 ].map((stat) => (
                   <div key={stat.label}>
-                    <p className="text-2xl md:text-3xl lg:text-4xl font-black text-white">{stat.value}</p>
+                    <p className="text-2xl md:text-3xl lg:text-4xl font-black text-white">
+                      <AnimatedCounter target={stat.target} suffix={stat.suffix} decimals={stat.decimals} />
+                    </p>
                     <p className="text-[11px] text-white/25 mt-1 font-medium">{stat.label}</p>
                   </div>
                 ))}

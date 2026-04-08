@@ -3,11 +3,20 @@
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { Suspense, useEffect, useState } from "react"
+import { Scissors, Star, ArrowUpRight } from "lucide-react"
 
 function ConfirmContent() {
   const searchParams = useSearchParams()
   const [animate, setAnimate] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
+  const [showReview, setShowReview] = useState(false)
+
+  // Review form state
+  const [rating, setRating] = useState(0)
+  const [hoverRating, setHoverRating] = useState(0)
+  const [comment, setComment] = useState("")
+  const [reviewSubmitting, setReviewSubmitting] = useState(false)
+  const [reviewDone, setReviewDone] = useState(false)
 
   const service = searchParams.get("service") || ""
   const date = searchParams.get("date") || ""
@@ -19,6 +28,7 @@ function ConfirmContent() {
   useEffect(() => {
     setTimeout(() => setAnimate(true), 100)
     setTimeout(() => setShowDetails(true), 600)
+    setTimeout(() => setShowReview(true), 1000)
   }, [])
 
   const formatPrice = (p: string) =>
@@ -53,10 +63,28 @@ function ConfirmContent() {
     )}`
   }
 
+  async function handleReviewSubmit() {
+    if (!rating || !comment.trim()) return
+    setReviewSubmitting(true)
+    try {
+      await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientName: name || "Cliente", rating, comment }),
+      })
+      setReviewDone(true)
+    } finally {
+      setReviewSubmitting(false)
+    }
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a0a0a] via-[#111] to-[#0a0a0a] px-4">
+    <div
+      className="min-h-screen flex items-center justify-center px-4 py-12"
+      style={{ background: "linear-gradient(135deg, #060c17 0%, #0a0f1e 50%, #060c17 100%)" }}
+    >
       {/* Background glow */}
-      <div className="fixed top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-green-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="fixed top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[#c9a227]/8 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="w-full max-w-md relative">
         {/* Success animation */}
@@ -66,51 +94,42 @@ function ConfirmContent() {
           }`}
         >
           <div className="relative w-24 h-24 mb-6">
-            <div className={`absolute inset-0 bg-green-500/20 rounded-full ${animate ? "animate-ping" : ""}`} />
-            <div className="relative w-24 h-24 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-lg shadow-green-500/30">
-              <svg
-                className={`w-12 h-12 text-white transition-all duration-500 ${
-                  animate ? "scale-100 opacity-100" : "scale-50 opacity-0"
-                }`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={3}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
+            <div className={`absolute inset-0 bg-[#c9a227]/20 rounded-full ${animate ? "animate-ping" : ""}`} />
+            <div className="relative w-24 h-24 bg-gradient-to-br from-[#c9a227] to-[#a88520] rounded-full flex items-center justify-center shadow-lg shadow-[#c9a227]/30">
+              <Scissors size={36} className="text-black" />
             </div>
           </div>
           <h1 className="text-3xl font-bold text-white text-center">
-            {name ? `${name}, ` : ""}Cita Agendada!
+            {name ? `${name}, ` : ""}¡Cita Agendada!
           </h1>
-          <p className="text-white/50 mt-2 text-center">
+          <p className="text-white/50 mt-2 text-center text-sm">
             Te enviaremos un recordatorio por WhatsApp
           </p>
         </div>
 
         {/* Booking details card */}
         <div
-          className={`bg-[#111] rounded-2xl border border-white/10 overflow-hidden shadow-2xl transition-all duration-700 delay-300 ${
+          className={`rounded-2xl border border-white/10 overflow-hidden shadow-2xl transition-all duration-700 delay-300 ${
             showDetails ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
           }`}
+          style={{ background: "#0f1a2e" }}
         >
           {/* Accent bar */}
-          <div className="h-1 bg-gradient-to-r from-green-400 via-green-500 to-emerald-600" />
+          <div className="h-1 bg-gradient-to-r from-[#c9a227] to-[#a88520]" />
 
           <div className="p-6">
             {/* Service */}
             {service && (
               <div className="flex items-center gap-4 mb-5">
-                <div className="w-12 h-12 bg-[#d97706]/20 rounded-xl flex items-center justify-center text-xl">
-                  ✂️
+                <div className="w-12 h-12 bg-[#c9a227]/15 rounded-xl flex items-center justify-center border border-[#c9a227]/20">
+                  <Scissors size={20} className="text-[#c9a227]" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm text-white/40">Servicio</p>
-                  <p className="font-semibold text-white text-lg">{service}</p>
+                  <p className="text-xs text-white/40 mb-0.5">Servicio</p>
+                  <p className="font-semibold text-white">{service}</p>
                 </div>
                 {price && (
-                  <p className="text-lg font-bold text-[#d97706]">{formatPrice(price)}</p>
+                  <p className="text-lg font-black text-[#c9a227]">{formatPrice(price)}</p>
                 )}
               </div>
             )}
@@ -118,19 +137,17 @@ function ConfirmContent() {
             <div className="h-px bg-white/8 my-4" />
 
             {/* Date & Time */}
-            <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="grid grid-cols-2 gap-3 mb-4">
               {date && (
                 <div className="bg-white/5 rounded-xl p-4 border border-white/8">
-                  <div className="text-xl mb-1">📅</div>
-                  <p className="text-xs text-white/40">Fecha</p>
-                  <p className="text-sm font-medium text-white mt-1 capitalize">{formatDate(date)}</p>
+                  <p className="text-xs text-white/40 mb-1">Fecha</p>
+                  <p className="text-sm font-semibold text-white capitalize">{formatDate(date)}</p>
                 </div>
               )}
               {time && (
                 <div className="bg-white/5 rounded-xl p-4 border border-white/8">
-                  <div className="text-xl mb-1">🕐</div>
-                  <p className="text-xs text-white/40">Hora</p>
-                  <p className="text-sm font-medium text-white mt-1">{time}</p>
+                  <p className="text-xs text-white/40 mb-1">Hora</p>
+                  <p className="text-sm font-semibold text-white">{time}</p>
                   {duration && (
                     <p className="text-xs text-white/30 mt-0.5">{duration} min</p>
                   )}
@@ -139,10 +156,14 @@ function ConfirmContent() {
             </div>
 
             {/* WhatsApp reminder notice */}
-            <div className="bg-green-900/20 border border-green-800/30 rounded-xl p-4 flex items-center gap-3 mb-5">
-              <span className="text-2xl">📲</span>
+            <div className="bg-[#c9a227]/8 border border-[#c9a227]/20 rounded-xl p-4 flex items-center gap-3 mb-5">
+              <div className="w-9 h-9 rounded-full bg-[#c9a227]/15 flex items-center justify-center flex-shrink-0">
+                <svg viewBox="0 0 24 24" className="w-5 h-5 text-[#c9a227]" fill="currentColor">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                </svg>
+              </div>
               <div>
-                <p className="text-sm font-medium text-green-400">Recordatorio por WhatsApp</p>
+                <p className="text-sm font-medium text-[#c9a227]">Recordatorio por WhatsApp</p>
                 <p className="text-xs text-white/40">Te avisaremos 1 hora antes de tu cita</p>
               </div>
             </div>
@@ -155,7 +176,7 @@ function ConfirmContent() {
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-white/10 text-white text-sm font-medium hover:bg-white/5 transition"
               >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
                 Agregar al calendario
@@ -163,9 +184,10 @@ function ConfirmContent() {
 
               <Link
                 href="/booking"
-                className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#d97706] text-white text-sm font-semibold hover:bg-[#b45309] transition"
+                className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-[#c9a227] to-[#a88520] text-black text-sm font-bold hover:shadow-lg hover:shadow-[#c9a227]/25 transition"
               >
                 Agendar otra cita
+                <ArrowUpRight size={14} />
               </Link>
 
               <Link
@@ -178,7 +200,70 @@ function ConfirmContent() {
           </div>
         </div>
 
-        <p className="text-center text-xs text-white/20 mt-6">✂️ Tu Barbería</p>
+        {/* Review section */}
+        <div
+          className={`mt-5 rounded-2xl border overflow-hidden transition-all duration-700 delay-700 ${
+            showReview ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+          } ${reviewDone ? "border-[#c9a227]/30 bg-[#c9a227]/5" : "border-white/8 bg-[#111]"}`}
+        >
+          {reviewDone ? (
+            <div className="p-6 text-center">
+              <div className="w-12 h-12 rounded-full bg-[#c9a227]/15 border border-[#c9a227]/30 flex items-center justify-center mx-auto mb-3">
+                <Star size={20} className="text-[#c9a227]" fill="currentColor" />
+              </div>
+              <p className="font-bold text-white mb-1">¡Gracias por tu reseña!</p>
+              <p className="text-xs text-white/40">Tu opinión ayuda a mejorar nuestro servicio.</p>
+            </div>
+          ) : (
+            <div className="p-6">
+              <p className="text-sm font-bold text-white mb-1">¿Cómo estuvo tu experiencia?</p>
+              <p className="text-xs text-white/35 mb-5">Tu opinión nos ayuda a mejorar</p>
+
+              {/* Stars */}
+              <div className="flex gap-2 mb-5">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    onClick={() => setRating(star)}
+                    onMouseEnter={() => setHoverRating(star)}
+                    onMouseLeave={() => setHoverRating(0)}
+                    className="transition-transform hover:scale-110 active:scale-95"
+                  >
+                    <Star
+                      size={28}
+                      className={`transition-colors ${
+                        star <= (hoverRating || rating) ? "text-[#c9a227]" : "text-white/15"
+                      }`}
+                      fill={star <= (hoverRating || rating) ? "#c9a227" : "transparent"}
+                    />
+                  </button>
+                ))}
+              </div>
+
+              {/* Comment */}
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Cuéntanos cómo fue tu corte..."
+                rows={3}
+                className="w-full p-3.5 bg-[#0a0a0a] border border-white/10 rounded-xl text-white placeholder-white/25 focus:border-[#c9a227]/50 focus:outline-none transition text-sm resize-none mb-4"
+              />
+
+              <button
+                onClick={handleReviewSubmit}
+                disabled={!rating || !comment.trim() || reviewSubmitting}
+                className="w-full py-3 rounded-xl bg-[#c9a227] text-black font-bold text-sm hover:bg-[#d4ae3f] transition disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                {reviewSubmitting ? "Enviando..." : "Enviar reseña"}
+              </button>
+            </div>
+          )}
+        </div>
+
+        <p className="text-center text-xs text-white/20 mt-6">
+          <Scissors size={10} className="inline mr-1" />
+          Tu estilo, tu tiempo.
+        </p>
       </div>
     </div>
   )
@@ -188,11 +273,11 @@ export default function ConfirmPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
+        <div className="min-h-screen flex items-center justify-center bg-[#060c17]">
           <div className="flex flex-col items-center gap-4">
             <div className="relative w-12 h-12">
               <div className="absolute inset-0 rounded-full border-2 border-white/10" />
-              <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-[#d97706] animate-spin" />
+              <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-[#c9a227] animate-spin" />
             </div>
             <span className="text-white/40 text-sm">Cargando...</span>
           </div>
