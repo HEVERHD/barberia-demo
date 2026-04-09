@@ -760,22 +760,19 @@ export default function AppointmentsPage() {
                             )}
                           </>
                         ) : (
-                          /* Wide (single column): client name + service + badge */
+                          /* Wide (single column): client name + service name */
                           <>
                             <p className={`font-bold leading-tight text-[11px] ${active ? "text-white" : "text-white/85"}`}
                               style={{ overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical" }}>
                               {apt.user?.name || "Cliente"}
                             </p>
-                            <p className="text-[10px] text-white/50 leading-tight mt-0.5"
+                            <p className="text-[10px] text-white/55 leading-tight mt-0.5"
                               style={{ overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
                               {apt.service.name}
                             </p>
                             {active && (
                               <p className="text-[9px] text-[#e84118] font-semibold mt-0.5">{remaining}min</p>
                             )}
-                            <span className={`self-start text-[8px] px-1.5 py-0.5 rounded-full mt-1 ${STATUS_MAP[apt.status]?.color}`}>
-                              {STATUS_MAP[apt.status]?.label}
-                            </span>
                           </>
                         )}
                       </div>
@@ -1127,22 +1124,15 @@ export default function AppointmentsPage() {
                           )}
 
                           {narrow ? (
-                            /* Narrow (multi-column) — compact vertical layout */
-                            <div className="relative z-10 h-full flex flex-col justify-center pl-3 pr-2 py-2 bg-[#1a0a0a]/60">
-                              <p className={`font-bold text-xs leading-tight ${active ? "text-white" : "text-white/85"}`}
-                                style={{ overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical" }}>
-                                {apt.user?.name || "Cliente"}
-                              </p>
-                              <p className="text-[10px] text-white/50 leading-tight mt-0.5"
+                            /* Narrow (multi-column) — service name only */
+                            <div className="relative z-10 h-full flex flex-col justify-start pl-3 pr-2 py-2 bg-[#1a0a0a]/70">
+                              <p className={`font-semibold text-[11px] leading-tight ${active ? "text-white" : "text-white/85"}`}
                                 style={{ overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
                                 {apt.service.name}
                               </p>
                               {active && (
                                 <p className="text-[9px] text-[#e84118] font-semibold mt-0.5">{remaining}min</p>
                               )}
-                              <span className={`self-start text-[8px] px-1.5 py-0.5 rounded-full mt-1 ${STATUS_MAP[apt.status]?.color}`}>
-                                {STATUS_MAP[apt.status]?.label}
-                              </span>
                             </div>
                           ) : (
                             /* Full width — horizontal layout with avatar */
