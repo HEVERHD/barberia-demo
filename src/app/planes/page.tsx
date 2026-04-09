@@ -91,27 +91,27 @@ export default function PlanesPage() {
 
       {/* Nav */}
       <nav className="sticky top-0 z-10 border-b border-white/5 bg-black/50 backdrop-blur-xl">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-white/50 hover:text-white transition text-sm">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2">
+          <Link href="/" className="flex items-center gap-1.5 text-white/50 hover:text-white transition text-sm flex-shrink-0">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
-            Inicio
+            <span className="hidden xs:inline">Inicio</span>
           </Link>
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#c9a227] to-[#a88520] flex items-center justify-center shadow-lg shadow-[#c9a227]/20">
-              <Scissors size={15} className="text-black" />
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-br from-[#c9a227] to-[#a88520] flex items-center justify-center shadow-lg shadow-[#c9a227]/20">
+              <Scissors size={13} className="text-black" />
             </div>
-            <span className="font-black text-base text-white tracking-tight">BarberOS</span>
+            <span className="font-black text-sm sm:text-base text-white tracking-tight">BarberOS</span>
           </div>
           <a
             href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hola! Me interesa conocer más sobre BarberOS para mi negocio.")}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 bg-gradient-to-r from-[#c9a227] to-[#a88520] text-black text-sm font-black px-4 py-2 rounded-xl hover:shadow-lg hover:shadow-[#c9a227]/25 transition-all"
+            className="flex items-center gap-1.5 bg-gradient-to-r from-[#c9a227] to-[#a88520] text-black font-black px-3 sm:px-4 py-2 rounded-xl hover:shadow-lg hover:shadow-[#c9a227]/25 transition-all flex-shrink-0"
           >
-            <MessageCircle size={14} />
-            Hablar con ventas
+            <MessageCircle size={13} />
+            <span className="text-xs sm:text-sm"><span className="hidden sm:inline">Hablar con </span>ventas</span>
           </a>
         </div>
       </nav>
@@ -119,23 +119,26 @@ export default function PlanesPage() {
       <div className="relative z-10">
 
         {/* ── Hero ── */}
-        <section className="text-center pt-20 pb-8 px-6">
-          <div className="inline-flex items-center gap-2 bg-[#c9a227]/10 border border-[#c9a227]/25 rounded-full px-5 py-2 mb-10">
-            <Zap size={13} className="text-[#c9a227]" />
-            <span className="text-xs font-bold text-[#c9a227] tracking-wide">WhatsApp automático incluido · Sin cobros ocultos</span>
+        <section className="text-center pt-14 sm:pt-20 pb-8 px-4 sm:px-6">
+          <div className="inline-flex items-center gap-2 bg-[#c9a227]/10 border border-[#c9a227]/25 rounded-full px-4 sm:px-5 py-2 mb-8 sm:mb-10">
+            <Zap size={13} className="text-[#c9a227] flex-shrink-0" />
+            <span className="text-[11px] sm:text-xs font-bold text-[#c9a227] tracking-wide">WhatsApp automático incluido · Sin cobros ocultos</span>
           </div>
 
-          <h1 className="text-5xl md:text-[5.5rem] font-black leading-[0.92] tracking-tight mb-7">
+          <h1 className="text-4xl sm:text-5xl md:text-[5.5rem] font-black leading-[0.92] tracking-tight mb-6 sm:mb-7">
             La plataforma que<br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#c9a227] via-[#d4ae3f] to-[#c9a227]">
               tu negocio merece
             </span>
           </h1>
 
-          <p className="text-white/40 text-lg max-w-lg mx-auto leading-relaxed mb-12">
+          <p className="text-white/40 text-base sm:text-lg max-w-lg mx-auto leading-relaxed mb-10 sm:mb-12">
             Citas online, recordatorios por WhatsApp y email,
             panel de control y más. Todo desde{" "}
-            <span className="text-white/70 font-bold">$49,000 COP/mes</span>.
+            <span className="text-white/70 font-bold">$49,000 COP</span>
+            <span className="text-white/30"> · </span>
+            <span className="text-white/70 font-bold">$12 USD</span>
+            /mes.
           </p>
 
           {/* Stats */}
@@ -145,30 +148,31 @@ export default function PlanesPage() {
               { value: "10 min", label: "Configuración" },
               { value: "0%", label: "Comisión por cita" },
             ].map((s) => (
-              <div key={s.label} className="bg-[#0a0f1e] px-8 py-5 text-center">
-                <p className="text-xl font-black text-[#c9a227]">{s.value}</p>
-                <p className="text-xs text-white/30 mt-0.5">{s.label}</p>
+              <div key={s.label} className="bg-[#0a0f1e] px-4 sm:px-8 py-4 sm:py-5 text-center">
+                <p className="text-lg sm:text-xl font-black text-[#c9a227]">{s.value}</p>
+                <p className="text-[11px] sm:text-xs text-white/30 mt-0.5">{s.label}</p>
               </div>
             ))}
           </div>
         </section>
 
         {/* ── Tipos de negocio ── */}
-        <section className="px-6 pb-20">
+        <section className="px-4 sm:px-6 pb-16 sm:pb-20">
           <div className="max-w-5xl mx-auto">
             <p className="text-center text-xs font-bold text-white/25 uppercase tracking-[0.25em] mb-6">
               Diseñado para
             </p>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            {/* Horizontal scroll on mobile, grid on md+ */}
+            <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory md:grid md:grid-cols-5 md:overflow-visible md:pb-0">
               {businessTypes.map((b) => (
                 <div
                   key={b.title}
-                  className={`bg-gradient-to-br ${b.gradient} border ${b.border} rounded-2xl p-5 flex flex-col items-center text-center gap-3 hover:scale-[1.03] transition-transform duration-200 cursor-default`}
+                  className={`min-w-[140px] flex-shrink-0 md:min-w-0 snap-start bg-gradient-to-br ${b.gradient} border ${b.border} rounded-2xl p-4 sm:p-5 flex flex-col items-center text-center gap-2.5 cursor-default`}
                 >
-                  <span className="text-3xl">{b.emoji}</span>
+                  <span className="text-2xl sm:text-3xl">{b.emoji}</span>
                   <div>
                     <p className={`text-sm font-black ${b.accent}`}>{b.title}</p>
-                    <p className="text-[11px] text-white/30 leading-snug mt-0.5">{b.tagline}</p>
+                    <p className="text-[10px] sm:text-[11px] text-white/30 leading-snug mt-0.5">{b.tagline}</p>
                   </div>
                 </div>
               ))}
@@ -177,7 +181,7 @@ export default function PlanesPage() {
         </section>
 
         {/* ── Pricing ── */}
-        <section className="px-6 pb-24 border-t border-white/5 pt-20">
+        <section className="px-4 sm:px-6 pb-16 sm:pb-24 border-t border-white/5 pt-14 sm:pt-20">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-4">
               <p className="text-xs font-bold text-[#c9a227] tracking-[0.25em] uppercase mb-4">Planes</p>
@@ -190,17 +194,18 @@ export default function PlanesPage() {
         </section>
 
         {/* ── Comparison ── */}
-        <section className="border-t border-white/5 py-24 px-6">
+        <section className="border-t border-white/5 py-16 sm:py-24 px-4 sm:px-6">
           <div className="max-w-4xl mx-auto">
-            <div className="mb-12 text-center">
+            <div className="mb-10 sm:mb-12 text-center">
               <p className="text-xs font-bold text-[#c9a227] tracking-[0.25em] uppercase mb-4">Comparación</p>
-              <h2 className="text-4xl font-black mb-4">La diferencia es clara</h2>
+              <h2 className="text-3xl sm:text-4xl font-black mb-4">La diferencia es clara</h2>
               <p className="text-white/35 text-sm max-w-sm mx-auto">
                 Otras plataformas cobran el WhatsApp como add-on. En BarberOS va incluido desde el plan más básico.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-white/8 overflow-hidden">
+            <div className="overflow-x-auto -mx-2 px-2">
+            <div className="min-w-[480px] rounded-2xl border border-white/8 overflow-hidden">
               <div className="grid grid-cols-3 bg-[#0b0f1a] border-b border-white/8">
                 <div className="p-5">
                   <p className="text-xs font-bold text-white/25 uppercase tracking-wider">Función</p>
@@ -226,7 +231,7 @@ export default function PlanesPage() {
                 { feature: "Sistema de reseñas",           us: true,              them: false },
                 { feature: "Lista de espera",              us: true,              them: false },
                 { feature: "Soporte por WhatsApp",         us: true,              them: "Solo email" },
-                { feature: "Precio plan base / mes",       us: "$49,000 COP",     them: "~$80,000+ COP" },
+                { feature: "Precio plan base / mes",       us: "$49K COP · $12 USD",  them: "~$80K+ COP" },
               ].map((row, i) => (
                 <div
                   key={row.feature}
@@ -260,6 +265,7 @@ export default function PlanesPage() {
                 </div>
               ))}
             </div>
+            </div>{/* end scroll wrapper */}
 
             <div className="mt-8 text-center">
               <a
@@ -276,7 +282,7 @@ export default function PlanesPage() {
         </section>
 
         {/* ── Features ── */}
-        <section className="border-t border-white/5 py-24 px-6">
+        <section className="border-t border-white/5 py-16 sm:py-24 px-4 sm:px-6">
           <div className="max-w-6xl mx-auto">
             <div className="mb-14 text-center">
               <p className="text-xs font-bold text-[#c9a227] tracking-[0.25em] uppercase mb-4">La plataforma completa</p>
@@ -305,7 +311,7 @@ export default function PlanesPage() {
         </section>
 
         {/* ── FAQ ── */}
-        <section className="border-t border-white/5 py-24 px-6">
+        <section className="border-t border-white/5 py-16 sm:py-24 px-4 sm:px-6">
           <div className="max-w-3xl mx-auto">
             <div className="mb-14 text-center">
               <p className="text-xs font-bold text-[#c9a227] tracking-[0.25em] uppercase mb-4">FAQ</p>

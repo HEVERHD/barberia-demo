@@ -104,7 +104,7 @@ export default function PricingCards() {
           />
           <button
             onClick={() => setCurrency("COP")}
-            className={`relative z-10 px-8 py-2.5 rounded-full text-sm font-black transition-colors duration-200 ${
+            className={`relative z-10 px-6 sm:px-8 py-2.5 rounded-full text-sm font-black transition-colors duration-200 ${
               currency === "COP" ? "text-black" : "text-white/40 hover:text-white/70"
             }`}
           >
@@ -112,7 +112,7 @@ export default function PricingCards() {
           </button>
           <button
             onClick={() => setCurrency("USD")}
-            className={`relative z-10 px-8 py-2.5 rounded-full text-sm font-black transition-colors duration-200 ${
+            className={`relative z-10 px-6 sm:px-8 py-2.5 rounded-full text-sm font-black transition-colors duration-200 ${
               currency === "USD" ? "text-black" : "text-white/40 hover:text-white/70"
             }`}
           >
