@@ -6,6 +6,7 @@ import { sendWhatsAppMessage, sendWhatsAppTemplateWithSMSFallback, buildConfirma
 import { formatDate, formatTime, formatCurrency, parseColombia, getColombiaTime, getColombiaDateStr, getColombiaDayOfWeek, to12Hour } from "@/lib/utils"
 import { sendPushToBarber } from "@/lib/push"
 import { autoScheduleFromWaitlist } from "@/lib/waitlist"
+import { sendConfirmationEmail } from "@/lib/resend"
 
 export const dynamic = "force-dynamic"
 
@@ -333,6 +334,21 @@ export async function POST(req: NextRequest) {
     } catch (error) {
       console.error("Error notifying barber:", error)
     }
+  }
+
+  // Email confirmation to client (if they provided email)
+  if (user.email) {
+    sendConfirmationEmail({
+      to: user.email,
+      clientName: user.name || "Cliente",
+      serviceName: appointment.service.name,
+      date: formatDate(appointment.date),
+      time: formatTime(appointment.date),
+      duration: appointment.service.duration,
+      price: formatCurrency(appointment.service.price),
+      shopName,
+      appointmentLink,
+    }).catch((err) => console.error("Error sending confirmation email:", err))
   }
 
   // Push notification to the assigned barber
